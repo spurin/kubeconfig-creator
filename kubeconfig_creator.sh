@@ -10,7 +10,7 @@ COMBO=$(echo -n $USER | sed 's/[^a-zA-Z0-9]//g')-$(echo -n $GROUP | sed 's/[^a-z
 
 # Colour escape codes
 CYAN='\033[1;34m'
-RED='\033[0;31m'
+YELLOW='\033[1;33m'
 GREEN='\033[1;32m'
 NC='\033[0m'
 
@@ -72,7 +72,7 @@ export CLUSTER_CA=$(kubectl config view --raw -o json | jq -r '.clusters[] | sel
 echo -e "✨ ${GREEN}Capturing variable CLUSTER_ENDPOINT - ${CYAN}kubectl config view --raw -o json | jq -r '.clusters[] | select(.name == \"'$(kubectl config current-context)'\") | .cluster.\"server\"'${NC}"
 export CLUSTER_ENDPOINT=$(kubectl config view --raw -o json | jq -r '.clusters[] | select(.name == "'$(kubectl config current-context)'") | .cluster."server"')
 
-echo -e "✨ ${GREEN}Creating Kubeconfig as ${COMBO}.config - ${RED}Test with - ${CYAN}KUBECONFIG=./${COMBO}.config kubectl${NC}"
+echo -e "✨ ${GREEN}Creating Kubeconfig as ${COMBO}.config - ${YELLOW}Test with - ${CYAN}KUBECONFIG=./${COMBO}.config kubectl${NC}"
 cat <<EOF > $COMBO.config
 apiVersion: v1
 kind: Config
