@@ -17,16 +17,16 @@ kubectl create clusterrole cluster-viewer --verb=list,get --resource='*'
 kubectl create clusterrolebinding cluster-view-role-binding --clusterrole=cluster-viewer --group=cluster-viewonly
 ```
 
-### Modify the top three entries of this script
+### Execute the script, passing variables as follows
 ```
-USER=bob
-GROUP=cluster-viewonly
-NAMESPACE=default
+-u <user>
+-g <group>
+[-n <namespace>] - optional, will use default if not specified
 ```
 
 ### Run the script
 ```
-./kubeconfig_creator.sh
+./kubeconfig_creator.sh -u bob -n cluster-viewonly
 ✨ Creating key for user bob-clusterviewonly as bob-clusterviewonly.key - openssl genrsa -out bob-clusterviewonly.key 4096
 ✨ Creating certificate signing request, configuration file for bob-clusterviewonly as bob-clusterviewonly.cnf, embedding CN=bob and O=cluster-viewonly
 ✨ Creating certificate signing request as bob-clusterviewonly.csr - openssl req -config ./bob-clusterviewonly.cnf -new -key bob-clusterviewonly.key -nodes -out bob-clusterviewonly.csr
