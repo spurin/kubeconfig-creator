@@ -1,9 +1,23 @@
 #!/bin/bash
 
-# Configure accordingly
-USER=bob
-GROUP=cluster-viewonly
-NAMESPACE=default
+usage() { echo "Usage: $0 -u <username> -g <groupname> [-n <namespace>]" 1>&2; exit 1; }
+
+while getopts u:g:n: flag
+do
+    case "${flag}" in
+        u) USER=${OPTARG};;
+        g) GROUP=${OPTARG};;
+        n) NAMESPACE=${OPTARG};;
+    esac
+done
+
+if [ -z "${USER}" ] || [ -z "${GROUP}" ]; then
+    usage
+fi
+
+if [ -z "${NAMESPACE}" ]; then
+  NAMESPACE=default
+fi
 
 # Create an Alphanumeric User Group Combo
 COMBO=$(echo -n $USER | sed 's/[^a-zA-Z0-9]//g')-$(echo -n $GROUP | sed 's/[^a-zA-Z0-9]//g')
