@@ -3,6 +3,7 @@
 # Configure accordingly
 USER=bob
 GROUP=cluster-viewonly
+NAMESPACE=default
 
 # Create an Alphanumeric User Group Combo
 COMBO=$(echo -n $USER | sed 's/[^a-zA-Z0-9]//g')-$(echo -n $GROUP | sed 's/[^a-zA-Z0-9]//g')
@@ -71,7 +72,7 @@ export CLUSTER_CA=$(kubectl config view --raw -o json | jq -r '.clusters[] | sel
 echo -e "✨ ${GREEN}Capturing variable CLUSTER_ENDPOINT - ${CYAN}kubectl config view --raw -o json | jq -r '.clusters[] | select(.name == \"'$(kubectl config current-context)'\") | .cluster.\"server\"'${NC}"
 export CLUSTER_ENDPOINT=$(kubectl config view --raw -o json | jq -r '.clusters[] | select(.name == "'$(kubectl config current-context)'") | .cluster."server"')
 
-echo -e "✨ ${GREEN}Creating Kubeconfig as ${COMBO}.config - ${RED}Test with - ${CYAN}KUBECONFIG=./${COMBO}.config kubectl get nodes${NC}"
+echo -e "✨ ${GREEN}Creating Kubeconfig as ${COMBO}.config - ${RED}Test with - ${CYAN}KUBECONFIG=./${COMBO}.config kubectl${NC}"
 cat <<EOF > $COMBO.config
 apiVersion: v1
 kind: Config
@@ -89,6 +90,7 @@ contexts:
 - context:
     cluster: ${CLUSTER_NAME}
     user: ${COMBO}
+    namespace: ${NAMESPACE}
   name: ${COMBO}-${CLUSTER_NAME}
 current-context: ${COMBO}-${CLUSTER_NAME}
 EOF
