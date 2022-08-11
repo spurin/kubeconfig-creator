@@ -17,10 +17,11 @@ kubectl create clusterrole cluster-viewer --verb=list,get --resource='*'
 kubectl create clusterrolebinding cluster-view-role-binding --clusterrole=cluster-viewer --group=cluster-viewonly
 ```
 
-### Modify the top two entries of this script
+### Modify the top three entries of this script
 ```
 USER=bob
 GROUP=cluster-viewonly
+NAMESPACE=default
 ```
 
 ### Run the script
