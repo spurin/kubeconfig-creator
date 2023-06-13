@@ -2,7 +2,7 @@
 
 A convenient wrapper script for creating kubeconfig files based on RBAC groups.
 
-Understanding RBAC in k8s can be difficult ... rather than using ```kubectl auth can-i```, this script creates a quick kubeconfig file with the associated user and group.
+Understanding RBAC in k8s can be difficult ... rather than using ```kubectl auth can-i```, this script creates a quick kubeconfig file with the associated user and/or group.
 
 ## Example workflow -
 
