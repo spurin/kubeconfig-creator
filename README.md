@@ -20,7 +20,7 @@ kubectl create clusterrolebinding cluster-view-role-binding --clusterrole=cluste
 ### Execute the script, passing variables as follows
 ```
 -u <user>
--g <group>
+[-g <group>] - optional
 [-n <namespace>] - optional, will use default if not specified
 ```
 
