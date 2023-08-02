@@ -16,7 +16,7 @@ if [ -z "${K8S_USER}" ]; then
 fi
 
 if [ -z "${K8S_NAMESPACE}" ]; then
-    NAMESPACE=default
+    K8S_NAMESPACE=default
 fi
 
 # Create an Alphanumeric User Group Combo
@@ -38,36 +38,12 @@ echo -e "✨ ${GREEN}Creating key for user ${COMBO} as ${COMBO}.key - ${CYAN}ope
 openssl genrsa -out ${COMBO}.key 4096 >/dev/null 2>&1
 
 if [ -z "${K8S_GROUP}" ]; then
-    echo -e "✨ ${GREEN}Creating certificate signing request, configuration file for ${COMBO} as ${COMBO}.cnf, ${CYAN}embedding CN=${K8S_USER}${NC}"
+    echo -e "✨ ${GREEN}Creating certificate signing request as ${COMBO}.cnf, ${CYAN}embedding CN=${K8S_USER}${NC}"
+    openssl req -new -key ${COMBO}.key -out ${COMBO}.csr -subj "/CN=${K8S_USER}" -sha256
 else
-    echo -e "✨ ${GREEN}Creating certificate signing request, configuration file for ${COMBO} as ${COMBO}.cnf, ${CYAN}embedding CN=${K8S_USER} and O=${K8S_GROUP}${NC}"
+    echo -e "✨ ${GREEN}Creating certificate signing request as ${COMBO}.cnf, ${CYAN}embedding CN=${K8S_USER} and O=${K8S_GROUP}${NC}"
+    openssl req -new -key ${COMBO}.key -out ${COMBO}.csr -subj "/CN=${K8S_USER}/O=${K8S_GROUP}" -sha256
 fi
-
-cat <<EOF > ${COMBO}.cnf
-[ req ]
-default_bits = 2048
-prompt = no
-default_md = sha256
-distinguished_name = dn
-
-[ dn ]
-CN = ${K8S_USER}
-EOF
-if [ ! -z "${K8S_GROUP}" ]; then
-    echo "O = ${K8S_GROUP}" >> ${COMBO}.cnf
-fi
-
-cat <<EOF >> ${COMBO}.cnf
-
-[ v3_ext ]
-authorityKeyIdentifier=keyid,issuer:always
-basicConstraints=CA:FALSE
-keyUsage=keyEncipherment,dataEncipherment
-extendedKeyUsage=serverAuth,clientAuth
-EOF
-
-echo -e "✨ ${GREEN}Creating certificate signing request as ${COMBO}.csr - ${CYAN}openssl req -config ./${COMBO}.cnf -new -key ${COMBO}.key -nodes -out ${COMBO}.csr${NC}"
-openssl req -config ./${COMBO}.cnf -new -key ${COMBO}.key -nodes -out ${COMBO}.csr >/dev/null 2>&1
 
 echo -e "✨ ${GREEN}Creating certificate signing request, kubernetes yaml declaration as ${COMBO}-csr.yaml${NC}"
 cat <<EOF > ${COMBO}-csr.yaml
@@ -87,8 +63,6 @@ cat <<EOF >> ${COMBO}-csr.yaml
   request: $(cat ./${COMBO}.csr | base64 | tr -d '\n')
   signerName: kubernetes.io/kube-apiserver-client
   usages:
-  - digital signature
-  - key encipherment
   - client auth
 EOF
 
@@ -129,7 +103,7 @@ contexts:
 - context:
     cluster: ${CLUSTER_NAME}
     user: ${COMBO}
-    namespace: ${NAMESPACE}
+    namespace: ${K8S_NAMESPACE}
   name: ${COMBO}-${CLUSTER_NAME}
 current-context: ${COMBO}-${CLUSTER_NAME}
 EOF
@@ -141,9 +115,6 @@ mkdir ${CLEANUPDIR} 2>&1
 
 echo -e "🗑️  ${GREEN}Cleanup ${COMBO}.key - ${CYAN}mv ${COMBO}.key ${CLEANUPDIR}${NC}"
 mv ${COMBO}.key ${CLEANUPDIR}
-
-echo -e "🗑️  ${GREEN}Cleanup ${COMBO}.cnf - ${CYAN}mv ${COMBO}.cnf ${CLEANUPDIR}${NC}"
-mv ${COMBO}.cnf ${CLEANUPDIR}
 
 echo -e "🗑️  ${GREEN}Cleanup ${COMBO}.csr - ${CYAN}mv ${COMBO}.csr ${CLEANUPDIR}${NC}"
 mv ${COMBO}.csr ${CLEANUPDIR}
